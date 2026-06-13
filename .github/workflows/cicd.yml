@@ -1,0 +1,39 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 拉代码
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. 登录 Docker
+    - name: Login to SWR
+      run: |
+        echo "${{ secrets.HW_SECRET_KEY }}" | docker login ${{ secrets.SWR_REPO }} \
+        -u ${{ secrets.HW_ACCESS_KEY }} --password-stdin
+
+    # 3. 构建镜像
+    - name: Build image
+      run: |
+        docker build -t ${{ secrets.SWR_REPO }}:latest .
+
+    # 4. 推送镜像
+    - name: Push image
+      run: |
+        docker push ${{ secrets.SWR_REPO }}:latest
+
+    # 5. 更新 K8s Deployment
+    - name: Deploy to Kubernetes
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+
+        kubectl set image deployment/backend backend=${{ secrets.SWR_REPO }}:latest
+        kubectl rollout status deployment/backend
