@@ -22,12 +22,12 @@ jobs:
     # 构建镜像（强制写死路径，避免 secret 错）
     - name: Build image
       run: |
-        docker build -t swr.cn-north-4.myhuaweicloud.com/stu2558/backend:latest ./backend
+        docker build -t swr.cn-north-4.myhuaweicloud.com/stu2558/backend:${{ github.sha }} ./backend
 
     # 推送镜像
     - name: Push image
       run: |
-        docker push swr.cn-north-4.myhuaweicloud.com/stu2558/backend:latest
+        docker push swr.cn-north-4.myhuaweicloud.com/stu2558/backend:${{ github.sha }}
 
     # 部署 K8s
     - name: Deploy to Kubernetes
