@@ -35,5 +35,6 @@ jobs:
         mkdir -p ~/.kube
         echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
-        kubectl set image deployment/backend backend=swr.cn-north-4.myhuaweicloud.com/stu2558/backend:latest
+        kubectl set image deployment/backend \
+          backend=swr.cn-north-4.myhuaweicloud.com/stu2558/backend:${{ github.sha }}
         kubectl rollout status deployment/backend
