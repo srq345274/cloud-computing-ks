@@ -9,31 +9,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. 拉代码
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2. 登录 Docker
+    # 登录 SWR
     - name: Login to SWR
       run: |
         echo "${{ secrets.SWR_PASSWORD }}" | docker login swr.cn-north-4.myhuaweicloud.com \
-        -u ${{ secrets.SWR_USERNAME }} --password-stdin
+          -u ${{ secrets.SWR_USERNAME }} \
+          --password-stdin
 
-    # 3. 构建镜像
+    # 构建镜像（强制写死路径，避免 secret 错）
     - name: Build image
       run: |
-        docker build -t ${{ secrets.SWR_REPO }}:latest .
+        docker build -t swr.cn-north-4.myhuaweicloud.com/stu2558/backend:latest ./backend
 
-    # 4. 推送镜像
+    # 推送镜像
     - name: Push image
       run: |
-        docker push ${{ secrets.SWR_REPO }}:latest
+        docker push swr.cn-north-4.myhuaweicloud.com/stu2558/backend:latest
 
-    # 5. 更新 K8s Deployment
+    # 部署 K8s
     - name: Deploy to Kubernetes
       run: |
         mkdir -p ~/.kube
         echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
-        kubectl set image deployment/backend backend=${{ secrets.SWR_REPO }}:latest
+        kubectl set image deployment/backend backend=swr.cn-north-4.myhuaweicloud.com/stu2558/backend:latest
         kubectl rollout status deployment/backend
