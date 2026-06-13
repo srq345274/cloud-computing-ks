@@ -16,8 +16,8 @@ jobs:
     # 2. 登录 Docker
     - name: Login to SWR
       run: |
-        echo "${{ secrets.HW_SECRET_KEY }}" | docker login ${{ secrets.SWR_REPO }} \
-        -u ${{ secrets.HW_ACCESS_KEY }} --password-stdin
+        echo "${{ secrets.SWR_PASSWORD }}" | docker login swr.cn-north-4.myhuaweicloud.com \
+        -u ${{ secrets.SWR_USERNAME }} --password-stdin
 
     # 3. 构建镜像
     - name: Build image
